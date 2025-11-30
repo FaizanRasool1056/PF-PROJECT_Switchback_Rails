@@ -1,65 +1,146 @@
 # ============================================================================
-# Makefile for Switchback Rails
+# MAKEFILE - Build configuration for Switchback Rails
+# ============================================================================
+# This Makefile compiles all C++ source files and links them with SFML
+# to create the executable game.
+#
+# USAGE:
+#   make           - Compile the project
+#   make clean     - Remove all compiled files
+#   make run       - Compile and run with default level
 # ============================================================================
 
+# Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++11 -Wall -Wextra -g
-SFML_FLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+CXXFLAGS = -std=c++11 -Wall -Wextra
+
+# SFML libraries to link
+LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+
+# Directories
+CORE_DIR = core
+SFML_DIR = sfml
+OUT_DIR = out
+DATA_DIR = data/levels
 
 # Source files
-CORE_SRCS = core/simulation_state.cpp core/grid.cpp core/trains.cpp \
-            core/switches.cpp core/simulation.cpp core/io.cpp
-SFML_SRCS = sfml/app.cpp sfml/main.cpp
+CORE_SOURCES = $(CORE_DIR)/simulation_state.cpp \
+               $(CORE_DIR)/simulation.cpp \
+               $(CORE_DIR)/trains.cpp \
+               $(CORE_DIR)/switches.cpp \
+               $(CORE_DIR)/grid.cpp \
+               $(CORE_DIR)/io.cpp
 
-# Object files
-CORE_OBJS = $(CORE_SRCS:.cpp=.o)
-SFML_OBJS = $(SFML_SRCS:.cpp=.o)
-ALL_OBJS = $(CORE_OBJS) $(SFML_OBJS)
+SFML_SOURCES = $(SFML_DIR)/app.cpp \
+               $(SFML_DIR)/main.cpp
 
-# Output executable
+# All source files
+SOURCES = $(CORE_SOURCES) $(SFML_SOURCES)
+
+# Object files (replace .cpp with .o)
+OBJECTS = $(SOURCES:.cpp=.o)
+
+# Executable name
 TARGET = switchback_rails
 
-# Default target
+# Default level file
+DEFAULT_LEVEL = $(DATA_DIR)/easy_level.lvl
+
+# ============================================================================
+# BUILD RULES
+# ============================================================================
+
+# Default target - build the executable
 all: $(TARGET)
+	@echo ""
+	@echo "=========================================="
+	@echo "Build complete!"
+	@echo "=========================================="
+	@echo "Run the game with:"
+	@echo "  ./$(TARGET) $(DEFAULT_LEVEL)"
+	@echo ""
 
-# Link executable
-$(TARGET): $(ALL_OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(SFML_FLAGS)
-	@echo "Build complete! Run with: ./$(TARGET)"
+# Link object files to create executable
+$(TARGET): $(OBJECTS)
+	@echo ""
+	@echo "Linking executable..."
+	$(CXX) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
+	@echo "Executable created: $(TARGET)"
 
-# Compile source files
+# Compile each .cpp file to .o object file
 %.o: %.cpp
+	@echo "Compiling $<..."
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Clean build artifacts
+# ============================================================================
+# UTILITY TARGETS
+# ============================================================================
+
+# Clean all compiled files
 clean:
-	rm -f $(ALL_OBJS) $(TARGET)
-	rm -f out/*.csv out/*.txt
+	@echo "Cleaning build files..."
+	rm -f $(OBJECTS)
+	rm -f $(TARGET)
+	rm -f $(OUT_DIR)/*.csv
+	rm -f $(OUT_DIR)/*.txt
 	@echo "Clean complete!"
 
-# Run the complex network level (default)
+# Run the game with default level
 run: $(TARGET)
-	./$(TARGET) data/levels/complex_network.lvl
+	@echo ""
+	@echo "Running game with default level..."
+	@echo ""
+	./$(TARGET) $(DEFAULT_LEVEL)
+
+# Run with easy level
+easy: $(TARGET)
+	@echo "Running easy level..."
+	./$(TARGET) $(DATA_DIR)/easy_level.lvl
+
+# Run with medium level
+medium: $(TARGET)
+	@echo "Running medium level..."
+	./$(TARGET) $(DATA_DIR)/medium_level.lvl
+
+# Run with hard level
+hard: $(TARGET)
+	@echo "Running hard level..."
+	./$(TARGET) $(DATA_DIR)/hard_level.lvl
+
+# Run with complex network level
+complex: $(TARGET)
+	@echo "Running complex network level..."
+	./$(TARGET) $(DATA_DIR)/complex_network.lvl
+
+# Create output directory if it doesn't exist
+setup:
+	@echo "Setting up directories..."
+	mkdir -p $(OUT_DIR)
+	@echo "Setup complete!"
 
 # Show help
 help:
-	@echo "Switchback Rails - Makefile"
+	@echo "=========================================="
+	@echo "Switchback Rails - Makefile Help"
+	@echo "=========================================="
 	@echo ""
-	@echo "Targets:"
-	@echo "  make          - Build the project"
-	@echo "  make run      - Build and run Complex Railway Network"
-	@echo "  make clean    - Remove build artifacts"
-	@echo "  make help     - Show this help message"
+	@echo "Available targets:"
+	@echo "  make           - Build the project"
+	@echo "  make clean     - Remove compiled files"
+	@echo "  make run       - Build and run default level"
+	@echo "  make easy      - Run easy level"
+	@echo "  make medium    - Run medium level"
+	@echo "  make hard      - Run hard level"
+	@echo "  make complex   - Run complex network level"
+	@echo "  make setup     - Create output directories"
+	@echo "  make help      - Show this help message"
 	@echo ""
-	@echo "🚂 Complex Network Level Features:"
-	@echo "  - 10 trains with interconnected paths"
-	@echo "  - 20 switches (A-T) for dynamic routing"
-	@echo "  - 16 crossing points for track exchanges"
-	@echo "  - Multiple route options per train"
-	@echo "  - Signal lights (GREEN/YELLOW/RED)"
-	@echo "  - NORMAL weather for consistent behavior"
+	@echo "Example:"
+	@echo "  make clean && make && make run"
 	@echo ""
-	@echo "Read README.md for complete documentation!"
 
-.PHONY: all clean run help
-
+# ============================================================================
+# PHONY TARGETS
+# ============================================================================
+# These targets don't represent actual files
+.PHONY: all clean run easy medium hard complex setup help

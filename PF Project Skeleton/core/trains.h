@@ -18,13 +18,13 @@ void spawnTrainsForTick();
 void determineAllRoutes();
 
 // Compute next position/direction for a train.
-bool determineNextPosition();
+bool determineNextPosition(int trainIndex);
 
 // Get next direction on entering a tile.
-int getNextDirection();
+int getNextDirection(char tile, int currentDirection);
 
 // Choose best direction at a crossing.
-int getSmartDirectionAtCrossing();
+int getSmartDirectionAtCrossing(int trainIndex);
 
 // ----------------------------------------------------------------------------
 // TRAIN MOVEMENT
@@ -48,7 +48,7 @@ void checkArrivals();
 // EMERGENCY HALT
 // ----------------------------------------------------------------------------
 // Apply emergency halt in active zone.
-void applyEmergencyHalt();
+void applyEmergencyHalt(int switchRow, int switchCol);
 
 // Update emergency halt timer.
 void updateEmergencyHalt();
